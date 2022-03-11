@@ -1,4 +1,4 @@
-# Top pro-Russian source in Slovakia
+# Top pro-Russian sources in Slovakia
 
 See https://blog.gerulata.com/russian-propaganda-network-in-slovakia/
 
