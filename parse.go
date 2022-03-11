@@ -9,6 +9,7 @@ import (
 )
 
 type Node struct {
+	ID        int    `json:"id"`
 	Title     string `json:"title"`
 	Type      string `json:"type"`
 	Activity  string `json:"activity"`
@@ -17,8 +18,6 @@ type Node struct {
 	Threat    string `json:"threat"`
 }
 
-type Nodes map[int]*Node // map of node ID into Node
-
 func main() {
 	file, err := os.Open(os.Args[1])
 	if err != nil {
@@ -26,7 +25,7 @@ func main() {
 	}
 	defer file.Close()
 
-	nodes := make(map[int]*Node)
+	nodesByID := make(map[int]*Node)
 
 	var id int
 	var n int
@@ -44,28 +43,43 @@ func main() {
 			if err != nil {
 				log.Fatalf("'%s' is not an ID (%v)", line, err)
 			}
-			_, ok := nodes[id]
+			_, ok := nodesByID[id]
 			if ok {
 				log.Fatalf("duplicate ID: %d", id)
 			}
-			nodes[id] = &Node{}
+			nodesByID[id] = &Node{}
 		case n == 2:
-			nodes[id].Title = line
+			nodesByID[id].Title = line
 		case n == 3:
-			nodes[id].Type = line
+			nodesByID[id].Type = line
 		case n == 4:
-			nodes[id].Activity = line
+			nodesByID[id].Activity = line
 		case n == 5:
-			nodes[id].Impact = line
+			nodesByID[id].Impact = line
 		case n == 6:
-			nodes[id].Influence = line
+			nodesByID[id].Influence = line
 		case n == 7:
-			nodes[id].Threat = line
+			nodesByID[id].Threat = line
 			n = 0
 		}
 	}
 	if err := input.Err(); err != nil {
 		log.Fatal(err)
+	}
+
+	var nodes []Node
+
+	for id, node := range nodesByID {
+		n := Node{
+			ID:        id,
+			Title:     node.Title,
+			Type:      node.Type,
+			Activity:  node.Activity,
+			Impact:    node.Impact,
+			Influence: node.Influence,
+			Threat:    node.Threat,
+		}
+		nodes = append(nodes, n)
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
