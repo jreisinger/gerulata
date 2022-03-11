@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -30,12 +29,8 @@ type Node struct {
 	AS        string   `json:"as"`
 }
 
-// var as = flag.Bool("as", false, "get AS description")
-
 func main() {
-	flag.Parse()
-
-	file, err := os.Open(flag.Args()[0])
+	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,25 +41,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// if *as {
-	// 	a, err := getAS()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	fmt.Println(a)
-
 	j, err := getJSON(nodesByID)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("%s", j)
 
-}
-
-func extractUrl(s string) (*url.URL, error) {
-	r := regexp.MustCompile(`\(([^)]+)\)`)
-	rawURL := r.FindStringSubmatch(s)[1]
-	return url.Parse(rawURL)
 }
 
 func getJSON(nodesByID map[int]*Node) ([]byte, error) {
@@ -171,4 +153,10 @@ func getAS(ip net.IP) (string, error) {
 		return "", err
 	}
 	return a.Description, nil
+}
+
+func extractUrl(s string) (*url.URL, error) {
+	r := regexp.MustCompile(`\(([^)]+)\)`)
+	rawURL := r.FindStringSubmatch(s)[1]
+	return url.Parse(rawURL)
 }
