@@ -2,9 +2,9 @@
 
 See https://blog.gerulata.com/russian-propaganda-network-in-slovakia/
 
-1. [x] Parse PDF into JSON
-2. [ ] Think how to use the data
-    * [x] Enrich data with URL path, IP addresses and AS description
+* [x] Parse PDF into JSON
+* [x] Enrich data with URL path, IP addresses and AS description
+* [ ] Think how to use the data
 
 # Parse PDF into JSON
 
