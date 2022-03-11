@@ -32,6 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	j, err := getJSON(nodesByID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s", j)
+}
+
+func getJSON(nodesByID map[int]*Node) ([]byte, error) {
 	var nodes []Node
 
 	for id, node := range nodesByID {
@@ -47,10 +55,7 @@ func main() {
 		nodes = append(nodes, n)
 	}
 
-	encoder := json.NewEncoder(os.Stdout)
-	if err := encoder.Encode(&nodes); err != nil {
-		log.Fatal(err)
-	}
+	return json.Marshal(&nodes)
 }
 
 func getNodesByID(r io.Reader) (map[int]*Node, error) {
