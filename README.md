@@ -10,5 +10,6 @@ See https://blog.gerulata.com/russian-propaganda-network-in-slovakia/
 ```
 pdftotext gerulata_top_pro_russian_sources.pdf # I had to manually fix some data
 
-go run parse.go gerulata_top_pro_russian_sources.txt | jq -r '.[] | select(.threat=="catastrophic" or .threat=="extreme")'
+go run parse.go gerulata_top_pro_russian_sources.txt | \
+jq -r '.[] | select(.threat=="catastrophic" or .threat=="extreme")'
 ```
