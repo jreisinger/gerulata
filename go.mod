@@ -2,7 +2,7 @@ module github.com/jreisinger/gerulata
 
 go 1.17
 
-require github.com/jreisinger/checkip v0.18.2
+require github.com/jreisinger/checkip v0.19.0
 
 require (
 	github.com/go-ping/ping v0.0.0-20211014180314-6e2b003bffdd // indirect

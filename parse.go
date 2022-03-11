@@ -12,6 +12,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/jreisinger/checkip/checks"
 )
@@ -64,15 +65,6 @@ func extractUrl(s string) (*url.URL, error) {
 	r := regexp.MustCompile(`\(([^)]+)\)`)
 	rawURL := r.FindStringSubmatch(s)[1]
 	return url.Parse(rawURL)
-}
-
-func getAS() (string, error) {
-	ip := net.ParseIP("1.1.1.1")
-	res, err := checks.CheckAS(ip)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return res.Info.JsonString()
 }
 
 func getJSON(nodesByID map[int]*Node) ([]byte, error) {
@@ -142,11 +134,11 @@ func getNodesByID(r io.Reader) (map[int]*Node, error) {
 
 				// Enrich with AS
 				if len(ips) != 0 {
-					res, err := checks.CheckAS(ips[0])
+					as, err := getAS(ips[0])
 					if err != nil {
 						return nil, err
 					}
-					nodesByID[id].AS = res.Info.Summary()
+					nodesByID[id].AS = as
 				}
 			}
 		case n == 4:
@@ -162,4 +154,21 @@ func getNodesByID(r io.Reader) (map[int]*Node, error) {
 	}
 
 	return nodesByID, input.Err()
+}
+
+func getAS(ip net.IP) (string, error) {
+	res, err := checks.CheckAS(ip)
+	if err != nil {
+		return "", err
+	}
+	j, err := res.Info.JsonString()
+	if err != nil {
+		return "", err
+	}
+	sr := strings.NewReader(j)
+	var a checks.AS
+	if err := json.NewDecoder(sr).Decode(&a); err != nil {
+		return "", err
+	}
+	return a.Description, nil
 }
