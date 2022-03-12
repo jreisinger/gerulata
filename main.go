@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Enrich nodes of type Web with some useful data..
+	// Enrich nodes of type Web with some useful data.
 	var wg sync.WaitGroup
 	for id := range nodesByID {
 		if nodesByID[id].Type == "Web" {
