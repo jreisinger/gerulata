@@ -10,7 +10,7 @@ To get the data in JSON and enriched with URL path, IP addresses and AS
 description:
 
 ```
-go run parse.go gerulata_top_pro_russian_sources.txt | \
+go run . gerulata_top_pro_russian_sources.txt | \
 jq -r '.[] | select(.threat!="low" and .type=="Web")'
 ```
 

@@ -5,15 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net"
-	"net/url"
-	"os"
-	"regexp"
 	"strconv"
-	"strings"
-
-	"github.com/jreisinger/checkip/checks"
 )
 
 type Node struct {
@@ -27,26 +20,7 @@ type Node struct {
 	UrlPath   string   `json:"url"`
 	IPs       []net.IP `json:"ip_addresses"`
 	AS        string   `json:"as"`
-}
-
-func main() {
-	file, err := os.Open(os.Args[1])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	nodesByID, err := getNodesByID(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	j, err := getJSON(nodesByID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s", j)
-
+	Ping      string   `json:"ping"`
 }
 
 func getJSON(nodesByID map[int]*Node) ([]byte, error) {
@@ -64,6 +38,7 @@ func getJSON(nodesByID map[int]*Node) ([]byte, error) {
 			UrlPath:   node.UrlPath,
 			IPs:       node.IPs,
 			AS:        node.AS,
+			Ping:      node.Ping,
 		}
 		nodes = append(nodes, n)
 	}
@@ -103,24 +78,8 @@ func getNodesByID(r io.Reader) (map[int]*Node, error) {
 		case n == 3:
 			nodesByID[id].Type = line
 			if nodesByID[id].Type == "Web" {
-				// Enrich with URL path
-				u, err := extractUrl(nodesByID[id].Title)
-				if err != nil {
+				if err := enrich(nodesByID[id]); err != nil {
 					return nil, err
-				}
-				nodesByID[id].UrlPath = u.Path
-
-				// Enrich with IP addresses
-				ips, _ := net.LookupIP(nodesByID[id].UrlPath) // NOTE: ignoring lookup error
-				nodesByID[id].IPs = ips
-
-				// Enrich with AS
-				if len(ips) != 0 {
-					as, err := getAS(ips[0])
-					if err != nil {
-						return nil, err
-					}
-					nodesByID[id].AS = as
 				}
 			}
 		case n == 4:
@@ -136,27 +95,4 @@ func getNodesByID(r io.Reader) (map[int]*Node, error) {
 	}
 
 	return nodesByID, input.Err()
-}
-
-func getAS(ip net.IP) (string, error) {
-	res, err := checks.CheckAS(ip)
-	if err != nil {
-		return "", err
-	}
-	j, err := res.Info.JsonString()
-	if err != nil {
-		return "", err
-	}
-	sr := strings.NewReader(j)
-	var a checks.AS
-	if err := json.NewDecoder(sr).Decode(&a); err != nil {
-		return "", err
-	}
-	return a.Description, nil
-}
-
-func extractUrl(s string) (*url.URL, error) {
-	r := regexp.MustCompile(`\(([^)]+)\)`)
-	rawURL := r.FindStringSubmatch(s)[1]
-	return url.Parse(rawURL)
 }
