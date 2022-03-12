@@ -77,11 +77,6 @@ func getNodesByID(r io.Reader) (map[int]*Node, error) {
 			nodesByID[id].Title = line
 		case n == 3:
 			nodesByID[id].Type = line
-			if nodesByID[id].Type == "Web" {
-				if err := enrich(nodesByID[id]); err != nil {
-					return nil, err
-				}
-			}
 		case n == 4:
 			nodesByID[id].Activity = line
 		case n == 5:

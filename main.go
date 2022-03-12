@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 func main() {
@@ -17,6 +18,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Enrich nodes of type Web with some useful data..
+	var wg sync.WaitGroup
+	for id := range nodesByID {
+		if nodesByID[id].Type == "Web" {
+			wg.Add(1)
+			go func(node *Node) {
+				defer wg.Done()
+				if err := enrich(node); err != nil {
+					log.Fatal(err)
+				}
+			}(nodesByID[id])
+		}
+	}
+	wg.Wait()
 
 	j, err := getJSON(nodesByID)
 	if err != nil {
