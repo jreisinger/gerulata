@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jreisinger/checkip/checks"
+	"github.com/jreisinger/checkip/check"
 )
 
 func enrich(node *Node) error {
@@ -42,7 +42,7 @@ func enrich(node *Node) error {
 }
 
 func ping(ip net.IP) (string, error) {
-	res, err := checks.CheckPing(ip)
+	res, err := check.Ping(ip)
 	if err != nil {
 		return "", err
 	}
@@ -50,16 +50,16 @@ func ping(ip net.IP) (string, error) {
 }
 
 func getAS(ip net.IP) (string, error) {
-	res, err := checks.CheckAS(ip)
+	res, err := check.IPtoASN(ip)
 	if err != nil {
 		return "", err
 	}
-	j, err := res.Info.JsonString()
+	j, err := res.Info.Json()
 	if err != nil {
 		return "", err
 	}
-	sr := strings.NewReader(j)
-	var a checks.AS
+	sr := strings.NewReader(string(j))
+	var a check.AutonomousSystem
 	if err := json.NewDecoder(sr).Decode(&a); err != nil {
 		return "", err
 	}
